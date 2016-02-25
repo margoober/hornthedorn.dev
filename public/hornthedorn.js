@@ -4,31 +4,55 @@ var interval;
 function logToGrid() {
 	var randomNumber = (Math.floor(Math.random() * 3) + 1);
 	$("#grid" + randomNumber).addClass("hornless");
-	enableEventListeners();
+	enableHornlessListeners();
 	setTimeout(function(){
-		disableEventListeners();
+		disableHornlessListeners();
 		$("#grid" + randomNumber).removeClass("hornless");
 		$("#grid" + randomNumber).removeClass("dorned");
 	}, interval);
 };
-var intervalID;
+//Intervalic Horn Dorn Materialization
 function logToGridByInterval() {
+	var randomNumber;
 	intervalID = setInterval(function() {
 		logToGrid();
-	}, interval * 1.1);
+	}, interval * (1.1 + (Math.random())));
 	};
 var hornCount = 0;
-function enableEventListeners() {
+//event listeners on and off. CONSOLIDATE THESE!!!
+function enableHornlessListeners() {
 	$(".hornless").on("click", function(){
-		disableEventListeners();
+		disableHornlessListeners();
 		$(".hornless").removeClass("hornless").addClass("dorned");
 		hornCount++;
 		console.log(hornCount);
 		$("#hornCount").html(hornCount);
 	});
 };
-function disableEventListeners() {
-		$(".hornless").off("click");
+function disableHornlessListeners() {
+	$(".hornless").off("click");
+};
+function disableLevelListeners() {
+	$("#easy").off("click");
+	$("#medium").off("click");
+	$("#hard").off("click");
+	console.log("level disabled");
+};
+function enableLevelListeners() {
+	$("#easy").on("click");
+	$("#medium").on("click");
+	$("#hard").on("click");
+	console.log("level enabled");
+	levelButtons();
+};
+function disableStartListeners() {
+	$(".start").off("click");
+	console.log("start disabled")
+};
+function enableStartListeners() {
+	$(".start").on("click");
+	console.log("start enabled");
+	startButton();
 };
 //restart button
 var clearMarker;
@@ -37,22 +61,36 @@ function halt(){
 	$(".start").html("Summon the Dorns!");
 	clearInterval(intervalID);
 	clearMarker = 1;
+	enableLevelListeners();
+	enableStartListeners();
+	scoreLogger();
 };
 $("#halt").on("click", function(){
 	halt();
 	hornCount = 0;
 	$("#hornCount").html(hornCount);
-
 });
-//"Select a Level" warning
-$(".start").on("click", function(){
-		if((isNaN(interval) == true) | (clearMarker == 1)) {
-			greenToRed();
-		} else {
-			logToGridByInterval();
-			$(".start").html("Click for More Dorns!")
-		};
-});
+//high score array and comparison conditional
+var scoreLog = [0];
+function scoreLogger() {
+	scoreLog.push(hornCount);
+	scoreLog.sort(function(a, b){return a-b});
+	if (hornCount >= (scoreLog[scoreLog.length -1])) {
+		$("#highScore").html(hornCount);
+	};
+};
+//Start button && "Select a Level" warning
+function startButton() {
+	$(".start").on("click", function(){
+			if((isNaN(interval) == true) | (clearMarker == 1)) {
+				greenToRed();
+			} else {
+				logToGridByInterval();
+				disableLevelListeners();
+				disableStartListeners();
+			};
+	});
+};
 function greenToRed(){
 	$(".start").html("Select a level!");
 	$(".start").removeClass("start").addClass("red");
@@ -62,6 +100,7 @@ function redToGreen(){
 	$(".start").html("Summon the Dorns!");
 };
 //difficulty level click events
+function levelButtons(){
 $("#easy").on("click", function(){
 	interval = 1500;
 	$(".dropbtn").html("Level: Softy");
@@ -80,8 +119,10 @@ $("#hard").on("click", function(){
 	redToGreen();
 	clearMarker = 0;
 });
-
-
+};
+//active functions
+startButton();
+levelButtons();
 //____________________________end readyShell
 });
 /*PROBLEMS:
